@@ -4,16 +4,19 @@
  */
 package es.ait.ffmpegsoundconverter;
 
+import java.awt.Cursor;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
-import javax.swing.ListModel;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author aitkiar
  */
-public class SoundConverterMain extends javax.swing.JFrame
+public class SoundConverterMain extends javax.swing.JFrame implements PropertyChangeListener
 {
     private File ultimaCarpeta = null;
     private DefaultListModel<Fichero> ficheros = new DefaultListModel<>();
@@ -45,7 +48,7 @@ public class SoundConverterMain extends javax.swing.JFrame
         textoDirDestino = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         botonCambiarDestino = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        botonConvertir = new javax.swing.JButton();
         barraProgreso = new javax.swing.JProgressBar();
         jLabel4 = new javax.swing.JLabel();
         panelBotones = new javax.swing.JPanel();
@@ -72,7 +75,7 @@ public class SoundConverterMain extends javax.swing.JFrame
         gridBagConstraints.insets = new java.awt.Insets(18, 12, 0, 0);
         getContentPane().add(jScrollPane1, gridBagConstraints);
 
-        comboFormatos.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "flac", "mp3", "ogg - vorbis", "wav" }));
+        comboFormatos.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "flac", "mp3" }));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
@@ -131,14 +134,21 @@ public class SoundConverterMain extends javax.swing.JFrame
         gridBagConstraints.insets = new java.awt.Insets(13, 28, 0, 18);
         getContentPane().add(botonCambiarDestino, gridBagConstraints);
 
-        jButton4.setText("Convertir");
+        botonConvertir.setText("Convertir");
+        botonConvertir.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                botonConvertirActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(28, 46, 0, 18);
-        getContentPane().add(jButton4, gridBagConstraints);
+        getContentPane().add(botonConvertir, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 6;
@@ -312,6 +322,37 @@ public class SoundConverterMain extends javax.swing.JFrame
         }
     }//GEN-LAST:event_botonCambiarDestinoActionPerformed
 
+    private void botonConvertirActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_botonConvertirActionPerformed
+    {//GEN-HEADEREND:event_botonConvertirActionPerformed
+        // TODO add your handling code here:
+        if ( !ficheros.isEmpty())
+        {
+            barraProgreso.setMinimum( 0 );
+            barraProgreso.setMaximum( ficheros.getSize());
+            barraProgreso.setValue( 0 );
+            
+            Conversor conversor = new Conversor();
+            if ( !"".equals( textoDirDestino.getText().trim()))
+            {
+                conversor.setDirectorioSalida( textoDirDestino.getText().trim());
+            }
+            
+            conversor.setFormatoSalida( comboFormatos.getSelectedIndex() );
+            conversor.setFicheros( ficheros );
+            try
+            {
+                conversor.addPropertyChangeListener( this );
+                barraProgreso.setString( "Convertidos 0 de " + ficheros.getSize());
+                barraProgreso.setStringPainted( true );
+                conversor.execute();
+            }
+            catch ( Exception e )
+            {
+                JOptionPane.showMessageDialog( this, e.getMessage(), "Error", JOptionPane.ERROR );
+            }
+        }
+    }//GEN-LAST:event_botonConvertirActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -360,10 +401,10 @@ public class SoundConverterMain extends javax.swing.JFrame
     private javax.swing.JProgressBar barraProgreso;
     private javax.swing.JButton botonAñadir;
     private javax.swing.JButton botonCambiarDestino;
+    private javax.swing.JButton botonConvertir;
     private javax.swing.JButton botonLimpiar;
     private javax.swing.JButton botonQuitar;
     private javax.swing.JComboBox comboFormatos;
-    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -374,4 +415,36 @@ public class SoundConverterMain extends javax.swing.JFrame
     private javax.swing.JPanel panelBotones;
     private javax.swing.JTextField textoDirDestino;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void propertyChange( PropertyChangeEvent evt )
+    {
+        if ( "progress".equals( evt.getPropertyName()) )
+        {
+            barraProgreso.setValue(  Integer.parseInt( evt.getNewValue().toString() ));
+            barraProgreso.setString( "Convertidos " + evt.getNewValue() + " de " + ficheros.getSize());
+        }
+        else if ( "STARTED".equals( evt.getNewValue().toString()))
+        {
+            // desactivar
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            botonAñadir.setEnabled( false );
+            botonCambiarDestino.setEnabled( false );
+            botonConvertir.setEnabled( false );
+            botonLimpiar.setEnabled( false );
+            botonQuitar.setEnabled(  false );
+            comboFormatos.setEnabled( false );
+        }
+        else if ("DONE".equals( evt.getNewValue().toString()))
+        {
+            // Activar
+            setCursor( null );
+            botonAñadir.setEnabled( true );
+            botonCambiarDestino.setEnabled( true );
+            botonConvertir.setEnabled( true );
+            botonLimpiar.setEnabled( true );
+            botonQuitar.setEnabled(  true );
+            comboFormatos.setEnabled( true );
+        }
+    }
 }

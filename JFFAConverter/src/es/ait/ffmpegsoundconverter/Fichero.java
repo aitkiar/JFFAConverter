@@ -27,7 +27,7 @@ public class Fichero
         this.carpetaDestino = carpetaDestino;
     }
     
-    public String getCarpString()
+    public String getCarpetaDestino()
     {
         return this.carpetaDestino;
     }
@@ -44,11 +44,11 @@ public class Fichero
         
         if ( carpetaDestino != null )
         {
-            destino = new File( carpetaDestino + File.pathSeparator + nombreFichero );
+            destino = new File( carpetaDestino + File.separator + nombreFichero );
         }
         else
         {
-            destino = new File ( origen.getParent() + File.pathSeparator + nombreFichero );
+            destino = new File ( origen.getParent() + File.separator + nombreFichero );
         }
         
         return destino;
