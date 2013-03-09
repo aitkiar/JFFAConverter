@@ -349,6 +349,7 @@ public class SoundConverterMain extends javax.swing.JFrame implements PropertyCh
             catch ( Exception e )
             {
                 JOptionPane.showMessageDialog( this, e.getMessage(), "Error", JOptionPane.ERROR );
+                activarInterfaz();
             }
         }
     }//GEN-LAST:event_botonConvertirActionPerformed
@@ -427,6 +428,21 @@ public class SoundConverterMain extends javax.swing.JFrame implements PropertyCh
         else if ( "STARTED".equals( evt.getNewValue().toString()))
         {
             // desactivar
+            desactivarInterfaz();
+        }
+        else if ("DONE".equals( evt.getNewValue().toString()))
+        {
+            // Activar
+            activarInterfaz();
+        }
+    }
+    
+
+    /** Desactiva los botones y pone el cursor en espera.
+     * 
+     */
+    private void desactivarInterfaz()
+    {
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             botonAñadir.setEnabled( false );
             botonCambiarDestino.setEnabled( false );
@@ -434,17 +450,19 @@ public class SoundConverterMain extends javax.swing.JFrame implements PropertyCh
             botonLimpiar.setEnabled( false );
             botonQuitar.setEnabled(  false );
             comboFormatos.setEnabled( false );
-        }
-        else if ("DONE".equals( evt.getNewValue().toString()))
-        {
-            // Activar
-            setCursor( null );
-            botonAñadir.setEnabled( true );
-            botonCambiarDestino.setEnabled( true );
-            botonConvertir.setEnabled( true );
-            botonLimpiar.setEnabled( true );
-            botonQuitar.setEnabled(  true );
-            comboFormatos.setEnabled( true );
-        }
+    }
+
+    /** Activa los botones y resetea el estado del cursor.
+     * 
+     */
+    private void activarInterfaz()
+    {
+        setCursor( null );
+        botonAñadir.setEnabled( true );
+        botonCambiarDestino.setEnabled( true );
+        botonConvertir.setEnabled( true );
+        botonLimpiar.setEnabled( true );
+        botonQuitar.setEnabled(  true );
+        comboFormatos.setEnabled( true );
     }
 }

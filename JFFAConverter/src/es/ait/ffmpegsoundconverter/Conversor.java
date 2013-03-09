@@ -86,6 +86,10 @@ public class Conversor extends SwingWorker<Object, Object>
         this.directorioSalida = directorioSalida;
     }
 
+    /** Método que realiza la conversión. Si el fichero exite lo borra para evitar problemas.
+     * 
+     * @throws Exception 
+     */
     public void convertir() throws Exception
     {
         if ( ficheros == null )
@@ -114,6 +118,10 @@ public class Conversor extends SwingWorker<Object, Object>
             comando.add("-i");
             comando.add( ficheros.get( i ).origen.getAbsolutePath());  
             comando.add( ficheros.get( i ).getDestino( extension[formatoSalida] ).getAbsolutePath());
+            if ( ficheros.get( i ).getDestino( extension[formatoSalida] ).exists() )
+            {
+                ficheros.get( i ).getDestino( extension[formatoSalida] ).delete();
+            }
             Process process = Runtime.getRuntime().exec( comando.toArray( new String[comando.size()]) );
             BufferedReader in = new BufferedReader( new InputStreamReader( process.getErrorStream()) );
 
